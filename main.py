@@ -15,7 +15,7 @@ print(objects)
 
 s3_client.download_file("transferbucket21", "info.rtf", "downloaded_info.rtf")
 s3_client.put_bucket_versioning(
-    Bucket='my-girl-images', 
+    Bucket='transferbucket21', 
     VersioningConfiguration={'Status': 'Enabled'}
 ) # Enable versioning on a bucket
 
