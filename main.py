@@ -13,6 +13,10 @@ response = s3_client.list_objects_v2(Bucket='transferbucket21') # List objects i
 objects = response.get('Contents', [])
 print(objects)
 
-s3_client.download_file("transferbucket21", "info.rtf", "downloaded_info.rtf") 
+s3_client.download_file("transferbucket21", "info.rtf", "downloaded_info.rtf")
+s3_client.put_bucket_versioning(
+    Bucket='my-girl-images', 
+    VersioningConfiguration={'Status': 'Enabled'}
+) # Enable versioning on a bucket
 
  
