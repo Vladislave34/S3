@@ -9,7 +9,7 @@ response = s3_client.list_buckets() # List all buckets
 for bucket in response['Buckets']:
     print(bucket)
 
-response = s3_client.list_objects_v2(Bucket='my-girl-images') # List objects in a bucket
+response = s3_client.list_objects_v2(Bucket='transferbucket21') # List objects in a bucket
 objects = response.get('Contents', [])
 print(objects)
 
