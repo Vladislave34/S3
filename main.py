@@ -13,4 +13,6 @@ response = s3_client.list_objects_v2(Bucket='transferbucket21') # List objects i
 objects = response.get('Contents', [])
 print(objects)
 
+s3_client.download_file("transferbucket21", "krakow-poland-getty-seregalsv.jpg", "downloaded_krakow-poland-getty-seregalsv.jpg") 
+
  
