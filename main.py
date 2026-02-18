@@ -44,7 +44,7 @@ import shutil
 
 # ===== CONFIG =====
 CONTAINER_ID = "283995e8d7a6"  # ID контейнера
-DB_NAME = "transferbd"
+DB_NAME = "mydb"
 DB_USER = "ivan"
 DB_PASSWORD = "marko123halosh"
 S3_BUCKET = "transferbucket21"
