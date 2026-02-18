@@ -28,55 +28,49 @@
 #
 #
 import os
-import boto3
 import subprocess
+import boto3
 from datetime import datetime
+import gzip
+import shutil
 
-# ====== CONFIG ======
-DB_HOST = "3.79.255.104"
-DB_PORT = "5432"  # окремо
+# ===== CONFIG =====
+CONTAINER_NAME = "postgres:18.1"
 DB_NAME = "transferbd"
 DB_USER = "ivan"
 DB_PASSWORD = "marko123halosh"
-
 S3_BUCKET = "transferbucket21"
 
-# ====================
+BACKUP_DIR = "/tmp/db_backups"
+os.makedirs(BACKUP_DIR, exist_ok=True)
 
-# timestamp для імені файлу
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-backup_file = f"backup_{DB_NAME}_{timestamp}.sql"
+backup_filename = f"{DB_NAME}_{timestamp}.sql"
+backup_path = os.path.join(BACKUP_DIR, backup_filename)
+compressed_path = backup_path + ".gz"
 
-# 1️⃣ Робимо дамп БД
-print("Creating database backup...")
+print("Creating database backup inside container...")
 
-os.environ["PGPASSWORD"] = DB_PASSWORD
+dump_command = f'docker exec -e PGPASSWORD={DB_PASSWORD} {CONTAINER_NAME} pg_dump -U {DB_USER} -F c {DB_NAME}'
 
-dump_command = [
-    "pg_dump",
-    "-h", DB_HOST,
-    "-p", DB_PORT,      # порт окремо
-    "-U", DB_USER,
-    "-F", "c",
-    "-b",
-    "-v",
-    "-f", backup_file,
-    DB_NAME
-]
+# Виконуємо pg_dump і записуємо у файл
+with open(backup_path, "wb") as f:
+    subprocess.run(dump_command, shell=True, check=True, stdout=f)
 
-subprocess.run(dump_command, check=True)
+print("Compressing backup...")
 
-print("Backup created:", backup_file)
+with open(backup_path, "rb") as f_in:
+    with gzip.open(compressed_path, "wb") as f_out:
+        shutil.copyfileobj(f_in, f_out)
 
-# 2️⃣ Завантажуємо в S3
+os.remove(backup_path)
+
 print("Uploading to S3...")
 
 s3 = boto3.client("s3")
-s3.upload_file(backup_file, S3_BUCKET, f"db_backups/{backup_file}")
+s3_key = f"docker-postgres-backups/{datetime.now().strftime('%Y/%m/%d')}/{os.path.basename(compressed_path)}"
+s3.upload_file(compressed_path, S3_BUCKET, s3_key)
 
-print("Upload completed!")
+os.remove(compressed_path)
 
-# 3️⃣ Видаляємо локальний файл
-os.remove(backup_file)
-
-print("Local backup file removed.")
+print("Backup completed and uploaded:", s3_key)
