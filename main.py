@@ -33,7 +33,8 @@ import subprocess
 from datetime import datetime
 
 # ====== CONFIG ======
-DB_HOST = "3.79.255.104:5432"
+DB_HOST = "3.79.255.104"
+DB_PORT = "5432"  # окремо
 DB_NAME = "transferbd"
 DB_USER = "ivan"
 DB_PASSWORD = "marko123halosh"
@@ -54,6 +55,7 @@ os.environ["PGPASSWORD"] = DB_PASSWORD
 dump_command = [
     "pg_dump",
     "-h", DB_HOST,
+    "-p", DB_PORT,      # порт окремо
     "-U", DB_USER,
     "-F", "c",
     "-b",
