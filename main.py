@@ -35,7 +35,15 @@ import gzip
 import shutil
 
 # ===== CONFIG =====
-CONTAINER_NAME = "postgres:18.1"
+import os
+import subprocess
+import boto3
+from datetime import datetime
+import gzip
+import shutil
+
+# ===== CONFIG =====
+CONTAINER_ID = "283995e8d7a6"  # ID контейнера
 DB_NAME = "transferbd"
 DB_USER = "ivan"
 DB_PASSWORD = "marko123halosh"
@@ -51,7 +59,8 @@ compressed_path = backup_path + ".gz"
 
 print("Creating database backup inside container...")
 
-dump_command = f'docker exec -e PGPASSWORD={DB_PASSWORD} {CONTAINER_NAME} pg_dump -U {DB_USER} -F c {DB_NAME}'
+# Використовуємо ID контейнера
+dump_command = f'docker exec -e PGPASSWORD={DB_PASSWORD} {CONTAINER_ID} pg_dump -U {DB_USER} -F c {DB_NAME}'
 
 # Виконуємо pg_dump і записуємо у файл
 with open(backup_path, "wb") as f:
